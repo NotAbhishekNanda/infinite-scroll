@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <title>Scrolling URL Hash</title>
+  <meta name="description" content="Webpage for xxxx">
+  <style>
+    body {
+      height: 2000px;
+    }
+    a > div {
+      min-height: 500px;
+    }
+  </style>
+  </head>
+  <body> 
+  <a href="#anchor1" id="anchor1" class="anchor"><div>ANCHOR 1</div></a>
+  <a href="#anchor2" id="anchor2" class="anchor"><div>ANCHOR 2</div></a>
+  <a href="#anchor3" id="anchor3" class="anchor"><div>ANCHOR 3</div></a>
+  <a href="#anchor4" id="anchor4" class="anchor"><div>ANCHOR 4</div></a>
+  <a href="#anchor5" id="anchor5" class="anchor"><div>ANCHOR 5</div></a>
+  <a href="#anchor6" id="anchor6" class="anchor"><div>ANCHOR 6</div></a>
+  <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script>
+
+    function isElementInViewport(el) {
+    if (typeof jQuery === "function" && el instanceof jQuery) {
+        el = el[0];
+    }
+    var rect = el.getBoundingClientRect();
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /*or $(window).height() */
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */
+    );
+}
+// click-to-scroll behavior
+$(".anchor").click(function (e) {
+    e.preventDefault();
+    var section = this.href;
+    var sectionClean = section.substring(section.indexOf("#"));
+    $("html, body").animate({
+        scrollTop: $(sectionClean).offset().top
+    }, 1000, function () {
+        window.location.hash = sectionClean;
+    });
+});
+// listen for the scroll event
+$(document).on("scroll", function () {
+    console.log("onscroll event fired...");
+    // check if the anchor elements are visible
+    $(".anchor").each(function (idx, el) {
+        if (isElementInViewport(el)) {
+            // update the URL hash
+            if (window.history.pushState) {
+                var urlHash = "#" + $(el).attr("id");
+                if ($(window).scrollTop() == 0) {
+                    window.history.pushState(null, null, window.location.pathname);
+                } else {
+                    window.history.pushState(null, null, urlHash);
+                }
+            }
+        }
+    });
+});
+  </script>
+  </body>
